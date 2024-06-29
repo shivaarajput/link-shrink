@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f9;
+        }
+        .container {
+            text-align: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: 80%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .short-url {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #28a745;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>URL Shortener</h1>
+        <input type="text" id="long-url" placeholder="Enter a long URL">
+        <button onclick="generateShortUrl()">Shorten URL</button>
+        <div class="short-url" id="short-url"></div>
+    </div>
+
+    <script>
+        function generateShortUrl() {
+            const longUrl = document.getElementById('long-url').value;
+            fetch('/shorten', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `long_url=${encodeURIComponent(longUrl)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                const shortUrlElement = document.getElementById('short-url');
+                shortUrlElement.innerHTML = `<a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+                navigator.clipboard.writeText(data.short_url)
+                    .then(() => alert('Short URL copied to clipboard!'))
+                    .catch(err => console.error('Failed to copy text: ', err));
+            })
+            .catch(err => console.error('Error:', err));
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const shortKey = urlParams.get('');
+            if (shortKey) {
+                window.location.href = `/${shortKey}`;
+            }
+        });
+    </script>
+</body>
+</html>
